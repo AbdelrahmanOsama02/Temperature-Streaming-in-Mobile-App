@@ -8,6 +8,8 @@
 OneWire oneWire(ONE_WIRE_BUS);        // Create a OneWire object for communication
 DallasTemperature sensors(&oneWire);  // Create a DallasTemperature object using OneWire
 
+/****************** LED Configuration *******************/
+#define LED_PIN 2
 /************* Wi-Fi Network Configuration *************/
 const char* ssid = "Wokwi-GUEST";      // Wi-Fi SSID
 const char* password = "";            // Wi-Fi password (empty for Wokwi-GUEST)
@@ -15,6 +17,7 @@ const char* password = "";            // Wi-Fi password (empty for Wokwi-GUEST)
 /************* MQTT Broker Configuration *************/
 const char* mqtt_broker = "broker.mqtt.cool";    // MQTT broker address
 const char* mqtt_topic_temp = "sensor/temp";     // MQTT topic to publish temperature
+const char* mqtt_topic_lamp = "ctrl/led";
 const int mqtt_port = 1883;                      // MQTT broker port (default: 1883)
 
 WiFiClient espClient;              // Create a WiFi client
@@ -31,9 +34,29 @@ void reconnect() {
       Serial.print("Failed, rc=");
       Serial.print(client.state()); 
       Serial.println(" Retrying in 5 seconds...");
-      delay(5000); // Wait before retrying
+      delay(2000); // Wait before retrying
     }
   }
+}
+
+void callback(char* topic, byte* message, unsigned int length) {
+  // Convert the message to a string
+  String messageTemp;
+  for (int i = 0; i < length; i++) {
+    messageTemp += (char)message[i];
+  }
+  Serial.print("Message: ");
+  Serial.println(messageTemp);
+
+  // Check if the topic is for the LED control
+  if (String(topic) == mqtt_topic_lamp) {
+    if (messageTemp == "on") {
+      digitalWrite(LED_PIN, HIGH);
+    }else if (messageTemp == "off") {
+      digitalWrite(LED_PIN, LOW);
+    }
+  }
+  
 }
 
 /************* Setup Function *************/
@@ -47,11 +70,16 @@ void setup() {
     delay(500);
     Serial.print(".");            
   }
-
+  
+  //LED initialization 
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
 
   // Set MQTT broker and connect
   client.setServer(mqtt_broker, mqtt_port); // Set the MQTT broker address and port
+  client.setCallback(callback);
   reconnect(); // Connect to the MQTT broker
+  client.subscribe(mqtt_topic_lamp);
 }
 
 /************* Main Loop Function *************/
@@ -84,5 +112,5 @@ void loop() {
   Serial.print(temperature);
   Serial.println(" °C");
 
-  delay(5000); // Wait 5 seconds before the next reading
+  delay(2000); // Wait 5 seconds before the next reading
 }
