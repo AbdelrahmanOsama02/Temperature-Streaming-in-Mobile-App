@@ -8,6 +8,7 @@ The system consisted of ESP32 wiring with Temperature sensor (DS18B20) take its 
 
 <img width="1080" height="480" alt="image" src="https://github.com/user-attachments/assets/0c940906-58dc-4267-83ed-f4f106554406" />
 description:
+
 The DS18B20 sensor was connected to the ESP32 and 
 correctly initialized using the DallasTemperature and 
 OneWire libraries. 
