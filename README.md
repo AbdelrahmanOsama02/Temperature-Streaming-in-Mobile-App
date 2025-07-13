@@ -28,8 +28,13 @@ Using MIT App Inventor and adding MQTT extension create user interface app to su
 topic and stream data.  
 
 real-world applications: 
+
 WHER YOU CAN USE THIS APPLICATION?? 
+
   • Smart temperature monitoring 
+
   • Home automation 
+
   • HVAC systems 
+
   • Remote data logging
